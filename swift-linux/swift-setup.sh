@@ -4,17 +4,36 @@
 version=alpha
 name=swift-setup.sh
 
+[ $# -eq 0 ] && {
+	echo
+	echo "$name $version"
+	echo
+	echo "Usage: $name -h"
+	echo
+	exit 1
+}
+
+help() {
+	echo
+	echo "Usage: $name -s [snapshot url] [/path/to/swift/root]"
+	echo
+	exit 1
+}
+
 # download package from swift.org
 get_package() {
+	echo "$1 <!"; echo "$2 <22"
+	URL=$1
 	cd $2
-	FILE=${$1##*/} # FILE=whatever is after the last slash
+	FILE=${URL##*/} # FILE=whatever is after the last slash
 	wget $1
 	tar -zxvf $FILE
 	rm $FILE
 }
 
 update_bashrc() {
-	FILE=${$1%%.*} # FILE=whatever is bwfoew the first full-stop
+	URL=$1
+	FILE=${URL%%.*} # FILE=whatever is before the first full-stop
 	sudo cp ~/.bashrc ~/.bashrc.ORG
 	echo "PATH=$PATH:$2/$FILE/usr/bin" >> ~/.bashrc
 	echo 
@@ -23,11 +42,8 @@ update_bashrc() {
 }
 
 setup() {
-	if [ $1=="" ] || [ $# -gt 1 ]; then
-		echo
-		echo "Usage: $name -s [snapshot url] [/path/to/swift/root]"
-		echo
-		exit 1
+	if [[ $# -eq 0 ]]; then
+		help
 	fi
 
 	DIR=$(echo $2 | sed 's:/*$::')	
@@ -40,11 +56,11 @@ case $1 in
 	-s)
 		setup $2 $3
 		;;
+	-h)
+		help
+		;;
 	*)
-		echo
-		echo "Usage: $name -s [snaphot url] [/path/to/swift/root]"
-		echo
-		exit 1
+		help
 		;;
 esac
 
